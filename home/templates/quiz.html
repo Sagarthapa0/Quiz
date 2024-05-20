@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  <title>Django Quiz App</title>
+</head>
+
+<body>
+  <div id="app">
+    <div class="container mt-5 pt-5">
+        <div class="col-md-6 mx-auto">
+            <h3>Give Quiz</h3>
+        {% comment %} {% for question in questions %} {% endcomment %}
+            <hr>
+        <p> {{questions}} </p>
+        <div class="form-check" v-for="answer in question.answer">
+          {% for answer in answers %}
+            <input @change="checkAnswer($event, question.uid)" :value="answer.answer" class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+            <label class="form-check-label" for="flexRadioDefault1">
+              {{ answer.answer }}
+            </label>
+            {% endfor %}
+          </div>
+        {% comment %} {% endfor %} {% endcomment %}
+        <hr>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+  <script>
+    var app = new Vue({
+      el: '#app',
+      delimiters: ['[[', ']]'],
+      data() {
+        return {
+          category: '{{category}}',
+          questions: []
+        }
+    },
+    methods: {
+        getQuestions() {
+          var _this = this
+          fetch('/api/get-quiz/?category=' + _this.category)
+            .then(response => response.json())
+            .then(result =>{
+              console.log(result)
+              _this.questions = result.data
+            })
+        },
+        checkAnswer(event,uid){
+          var _this = this
+
+            this.questions.map(question =>{
+                if(question.uid === uid){
+                    answer=question.answer
+                    for(var i=0;i<answer.length;i++){
+                        if(answer[i].answer==event.target.value){
+                            if(answer[i].is_correct){
+                                console.log('Your answer is correct')
+                                alert('Hurray your answer is correct')
+                            }else{
+                                console.log('Your answer is incorrect')
+                                alert('Sorry your answer is incorrect')
+                            }
+                        }
+                    }
+                }
+            })
+
+            console.log(event.target.value,uid)
+        }
+
+    }
+    created() {
+        this.getQuestions()
+      },
+    });
+  </script>
+</body>
+
+</html>
